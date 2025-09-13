@@ -1,5 +1,6 @@
 package dev.tonslima.productapi.model;
 
+import dev.tonslima.productapi.dto.ProductDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,4 +20,10 @@ public class Product {
     private String name;
     private String description;
     private BigDecimal price;
+
+    public Product(ProductDTO productDTO) {
+        this.name = productDTO.name();
+        this.description = productDTO.description();
+        this.price = productDTO.price();
+    }
 }
