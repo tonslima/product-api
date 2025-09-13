@@ -1,13 +1,10 @@
 package dev.tonslima.productapi.controller;
 
-import dev.tonslima.productapi.dto.ApiResponse;
-import dev.tonslima.productapi.dto.ProductDTO;
+import dev.tonslima.productapi.dto.*;
 import dev.tonslima.productapi.exception.DuplicateProductException;
-import dev.tonslima.productapi.model.Product;
 import dev.tonslima.productapi.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -21,30 +18,38 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ProductDTO>>> getAll() {
-        List<Product> products = productService.getAll();
-        List<ProductDTO> productsDTO = products.stream()
-                .map(ProductDTO::new)
+    public ResponseEntity<ApiResponse<List<ProductRespDTO>>> getAll() {
+        var products = productService.getAll();
+        var dtoRespList = products.stream()
+                .map(ProductMapper::toDTO)
                 .toList();
 
-        return ResponseEntity.ok(ApiResponse.of(productsDTO));
+        return ResponseEntity.ok(ApiResponse.of(dtoRespList));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductDTO> getById(@PathVariable Long id) {
-        Product product = productService.getById(id);
-        ProductDTO productDTO = new ProductDTO(product);
+    public ResponseEntity<ProductRespDTO> getById(@PathVariable Long id) {
+        var product = productService.getById(id);
+        var dtoResp = ProductMapper.toDTO(product);
 
-        return ResponseEntity.ok(productDTO);
+        return ResponseEntity.ok(dtoResp);
     }
 
     @PostMapping
-    public ResponseEntity<ProductDTO> create(@RequestBody ProductDTO productDTO) throws DuplicateProductException {
-        Product product = new Product(productDTO);
-        Product createdProduct = productService.create(product);
+    public ResponseEntity<ProductRespDTO> create(@RequestBody ProductDTO dto) throws DuplicateProductException {
+        var product = ProductMapper.toEntity(dto);
+        var createdProduct = productService.create(product);
 
         var uri = UriComponentsBuilder.fromPath("/products/{id}").buildAndExpand(createdProduct.getId()).toUri();
 
-        return ResponseEntity.created(uri).body(new ProductDTO(createdProduct));
+        return ResponseEntity.created(uri).body(ProductMapper.toDTO(createdProduct));
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<ProductRespDTO> update(@RequestBody ProductDTO dto, @PathVariable Long id) {
+        var product = ProductMapper.toEntity(dto);
+        var updatedProduct = productService.update(product, id);
+
+        return ResponseEntity.ok(ProductMapper.toDTO(updatedProduct));
     }
 }

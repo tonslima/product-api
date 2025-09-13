@@ -35,4 +35,13 @@ public class ProductService {
 
         return productRepository.save(product);
     }
+
+    @Transactional
+    public Product update(Product product, Long id) throws EntityNotFoundException {
+        var updatedProduct = productRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Product for id '" + id + "' not found"));
+
+        updatedProduct.update(product.getName(), product.getDescription(), product.getPrice());
+        return productRepository.save(updatedProduct);
+    }
 }
