@@ -18,13 +18,13 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public List<Product> getAll() {
-        return productRepository.findAll();
+        return productRepository.findAllByActiveTrue();
     }
 
     @Transactional(readOnly = true)
     public Product getById(long id) {
-        return productRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Product for id '" + id + "' not found"));
+        return productRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new EntityNotFoundException("Product not found with id " + id));
     }
 
     @Transactional
@@ -38,10 +38,19 @@ public class ProductService {
 
     @Transactional
     public Product update(Product product, Long id) throws EntityNotFoundException {
-        var updatedProduct = productRepository.findById(id)
+        var updatedProduct = productRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new EntityNotFoundException("Product for id '" + id + "' not found"));
 
         updatedProduct.update(product.getName(), product.getDescription(), product.getPrice());
         return productRepository.save(updatedProduct);
+    }
+
+    @Transactional
+    public void delete(Long id) throws EntityNotFoundException {
+        var product = productRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Product for id '" + id + "' not found"));
+
+        product.delete();
+        productRepository.save(product);
     }
 }

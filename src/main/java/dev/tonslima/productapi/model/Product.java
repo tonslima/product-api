@@ -20,17 +20,13 @@ public class Product {
     private String name;
     private String description;
     private BigDecimal price;
-
-    public Product(ProductRespDTO productRespDTO) {
-        this.name = productRespDTO.name();
-        this.description = productRespDTO.description();
-        this.price = productRespDTO.price();
-    }
+    private Boolean active;
 
     public Product(String name, String description, BigDecimal price) {
         this.name = name;
         this.description = description;
         this.price = price;
+        this.active = true;
     }
 
     public void update(String name, String description, BigDecimal price) {
@@ -43,5 +39,9 @@ public class Product {
         if (!this.price.equals(price)) {
             this.price = price;
         }
+    }
+
+    public void delete() {
+        this.active = false;
     }
 }
