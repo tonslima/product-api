@@ -1,21 +1,16 @@
 package dev.tonslima.productapi.dto;
 
 import dev.tonslima.productapi.model.Product;
+import org.mapstruct.Mapper;
 
-public class ProductMapper {
+import java.awt.*;
 
-    public static Product toEntity(ProductDTO dto) {
-        return new Product(
-                dto.name(),
-                dto.description(),
-                dto.price());
-    }
+@Mapper(componentModel = "spring")
+public interface ProductMapper {
 
-    public static ProductRespDTO toDTO(Product product) {
-        return new ProductRespDTO(
-                product.getId(),
-                product.getName(),
-                product.getDescription(),
-                product.getPrice());
-    }
+    Product toEntity(ProductCreateDTO dto);
+
+    Product toEntity(ProductUpdateDTO dto);
+
+    ProductRespDTO toDTO(Product product);
 }
